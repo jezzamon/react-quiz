@@ -1,6 +1,8 @@
 import * as React from 'react';
-
+import { Link } from 'react-router-dom';
 import './App.css';
+
+import {ITurnProps} from './Interfaces'
 
 // import logo from './logo.svg';
 
@@ -12,55 +14,90 @@ import './bootstrap.css';
 // type AppProps = {message : string }
 // const App: React.SFC<AppProps> = ({message}) => <div>{message}</div>;
 
-// STATEFUL
-interface IAppProps { message: string, message2: string}
+const Hero:React.SFC = () => (
+  <div className="row">
+    <div className="jumbotron col-10 offset-1">
+      <h1>Author Quiz</h1> 
+      <p>Select the book written by author shown</p>
+    </div>
+  </div> )
 
-interface IAppState { count: number, letter: any} 
+// BOOK COMPONENT
+interface IBookProps { title: string, onClick: Function}
+const Book:React.SFC<IBookProps> = ({title, onClick}) => {
+    
+    return (
+      <div className="answer" onClick={() => {onClick(title);}}>
+        <h4>{title}</h4> 
+        </div>) 
+        }
 
-class AuthorQuiz extends React.Component <IAppProps, IAppState> {
-  constructor(props) {
-      super(props);
-      this.state = {  
-        count: 0 , 
-        letter: 'A'
+
+// TURN COMPONENT
+const Turn: React.SFC<ITurnProps> = ({turnData, highlight, onAnswerSelected}) =>  {
+  console.log('highlight', highlight)
+  function highlightToBgColor(highlight) {
+    console.log('highlight', highlight)
+    const mapping = {
+      'none': '',
+      'correct': 'green',
+      'wrong': 'red'
+    }
+    return mapping[highlight];
+  }
+  console.log(turnData, highlight, 'answer selected function - ', onAnswerSelected)
+  
+  return (<div className="row turn" style={{backgroundColor: highlightToBgColor(highlight)}}>
+    <div className="col-md-4 offset-1">
+      <img src={turnData.author.imageUrl} className="authorimage" alt="author"/>
+    </div>
+    <div className="col-md-6">
+    {turnData.books.map( (title) => (<Book onClick={onAnswerSelected} title={title} key={title}>{title}</Book>)) }
+    </div>
+  </div>)
+}
+  
+  
+
+interface IContinueProps { show: boolean, onContinue: Function}
+const Continue: React.SFC<IContinueProps> = ({show, onContinue}) => {
+  return (
+    <div className="row continue">
+      { show 
+        ? <div className="col-11">
+            <button className="btn btn-primary btn-lg float-right"></button>
+          </div> 
+        : null 
       }
-      
-  }
+    </div>
+  )
+}
 
-  public increment = () => {
-    this.setState({
-        count: this.state.count + 1
-    })
-  }
+const Footer: React.SFC = () => (
+  <div id="footer" className="row">
+    <div className="col-md-12">
+      <p className="text-muted credit">All images are from <a href="https://commons.wikimedia.org">Wikimedia</a></p>
+    </div>
 
-  public handleClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
-    
-    const newLet = event.currentTarget.dataset.arg
-    console.log(newLet)
-    this.setState({
-      letter: newLet
-    })
-    
-  }
+  </div>
+)
 
+const AuthorQuiz = ({turnData, highlight, onAnswerSelected, onContinue} ) => {
   
-  public render() {
+  return (<div className="container-fluid">
+          {/* <button data-arg="A" onClick={this.handleClick}>A was clicked {this.state.letter}</button> */}
+          <Hero/>
+          <Turn turnData={turnData} highlight={highlight} onAnswerSelected={onAnswerSelected} />
+          <Continue show={highlight === 'correct'} onContinue={onContinue}/>
+          <p><Link to="/add">Add an author</Link></p>
+          <Footer/>
+        </div>)
 
-      
-
-      return (
-        <div>
-          <div className="container" onClick={ this.increment } >Author Quiz { this.props.message}, has been clicked { this.state.count} times, {this.props.message2}</div>
-          <button data-arg="B" onClick={this.handleClick}>A was clicked {this.state.letter}</button>
-        </div>
-          
-      );
-  }
-
-  
 }
 
 export default AuthorQuiz;
+
+
 
 
 

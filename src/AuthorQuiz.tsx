@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 import './App.css';
+
 
 import {ITurnProps} from './Interfaces'
 
@@ -95,7 +97,27 @@ const AuthorQuiz = ({turnData, highlight, onAnswerSelected, onContinue} ) => {
 
 }
 
-export default AuthorQuiz;
+function mapStateToProps(state) {
+  return {
+    turnData: state.turnData,
+    highlight: state.highlight
+  }
+}
+
+
+
+function mapDispatchToProps(dispatch) { 
+  return {
+      onAnswerSelected: (answer) => {
+        dispatch({ type: 'ANSWER_SELECTED', answer});
+      },
+      onContinue: () => {
+        dispatch({ type: 'CONTINUE'});
+      }
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(AuthorQuiz);
 
 
 
